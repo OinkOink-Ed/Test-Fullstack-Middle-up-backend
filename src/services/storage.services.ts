@@ -19,7 +19,7 @@ class StorageService {
     this.initialize();
   }
 
-  private initialize(): void {
+  public async initialize(): Promise<void> {
     const batchSize = 10000;
     const totalItems = 1000000;
 
@@ -46,8 +46,22 @@ class StorageService {
     }
   }
 
-  getItems(page: number, limit: number, search?: string) {
-    return [];
+  getItemsByID(id: number): Item | undefined {
+    return this.entitiesMap.get(id);
+  }
+
+  getAllitems(page: number, limit: number) {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const idsArray = this.entitiesIds.slice(startIndex, endIndex);
+
+    const result = idsArray.flatMap((id) => {
+      const item = this.entitiesMap.get(id);
+      return item ? [item] : [];
+    });
+
+    return result;
   }
 }
 

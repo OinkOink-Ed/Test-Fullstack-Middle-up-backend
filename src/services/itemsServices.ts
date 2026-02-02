@@ -1,7 +1,11 @@
-import { storageService } from "./storage.services";
+import { Item, storageService } from "./storage.services";
 
 export default class ItemsService {
-  async getItems(page: number, limit: number, search?: string) {
-    return storageService.getItems(page, limit, search);
+  async getItemsByID(id: number): Promise<Item | undefined> {
+    return storageService.getItemsByID(id);
+  }
+
+  async getAllItems(page: number, limit: number) {
+    return storageService.getAllitems(page, limit);
   }
 }
