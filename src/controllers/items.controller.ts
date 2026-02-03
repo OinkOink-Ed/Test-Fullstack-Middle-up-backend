@@ -1,4 +1,4 @@
-import { Request, response, Response } from "express";
+import { Request, Response } from "express";
 import ItemsService from "../services/itemsServices";
 
 export default class ItemsController {
@@ -7,44 +7,6 @@ export default class ItemsController {
   constructor() {
     this.itemsService = new ItemsService();
   }
-
-  getItemsByID = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!id) {
-        return res.status(400).json({
-          success: false,
-          error: "Параметр поиска не был передан",
-        });
-      }
-
-      const numericId = parseInt(id as string);
-      if (isNaN(numericId)) {
-        return res.status(400).json({
-          success: false,
-          error: "Параметр должен быть числом",
-        });
-      }
-
-      const item = await this.itemsService.getItemsByID(numericId);
-      if (!item) {
-        return res.status(200).json({
-          success: true,
-          data: null,
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        data: item,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: "Ошибка Сервера",
-      });
-    }
-  };
 
   getAllItems = async (req: Request, res: Response) => {
     try {
@@ -66,6 +28,11 @@ export default class ItemsController {
         success: true,
         data: result,
       });
-    } catch (error) {}
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+      });
+    }
   };
 }
