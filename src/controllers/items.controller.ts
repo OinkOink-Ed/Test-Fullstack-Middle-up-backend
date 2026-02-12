@@ -1,38 +1,49 @@
 import { Request, Response } from "express";
-import ItemsService from "../services/itemsServices";
+import { handleError } from "../decorators/hadleError";
+import { validateStorage } from "../decorators/validateStorage";
+import { validateQueryParams } from "../decorators/validateQueryParams";
 
 export default class ItemsController {
-  private itemsService: ItemsService;
+  @handleError
+  @validateStorage
+  @validateQueryParams(["sessionId"])
+  async getAllItems(req: Request, res: Response): Promise<void> {
+    const {
+      sessionId,
+      cursor,
+      search,
+      searchInSelected = "false",
+      limit = "20",
+    } = req.query;
 
-  constructor() {
-    this.itemsService = new ItemsService();
+    const sessionIdStr = sessionId as string;
+
+    const limitNum = parseInt(limit as string, 10);
+    let safeLimit = 20;
+
+    if (!isNaN(limitNum) && limitNum > 0) {
+      safeLimit = Math.min(limitNum, 20);
+    }
+
+    const results = await req.storageService.getAllItems(
+      sessionIdStr.trim(),
+      cursor as string | null,
+      search as string | undefined,
+      searchInSelected === "true",
+      safeLimit,
+    );
+
+    res.json(results);
   }
 
-  getAllItems = async (req: Request, res: Response) => {
-    try {
-      const { page, limit } = req.query;
+  @handleError
+  @validateStorage
+  async createSession(req: Request, res: Response): Promise<void> {
+    const sessionId = await req.storageService.createSession();
 
-      const pageNum = parseInt(page as string, 10);
-      const limitNum = parseInt(limit as string, 10);
-
-      if (isNaN(pageNum) || isNaN(limitNum)) {
-        return res.status(400).json({
-          success: false,
-          error: "Параметры должны быть числами",
-        });
-      }
-
-      const result = await this.itemsService.getAllItems(pageNum, limitNum);
-
-      return res.json({
-        success: true,
-        data: result,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: error,
-      });
-    }
-  };
+    res.status(201).json({
+      sessionId,
+      message: "Сессия создана",
+    });
+  }
 }
