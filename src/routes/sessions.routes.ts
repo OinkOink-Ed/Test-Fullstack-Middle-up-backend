@@ -1,8 +1,9 @@
 import { Router } from "express";
-import ItemsController from "../controllers/items.controller";
+import SessionsController from "../controllers/sessions.controller";
 
-const router = Router();
-const itemsController = new ItemsController();
-router.get("/", itemsController.createSession);
+const sessionsRouter = Router();
+const sessionsController = new SessionsController();
 
-export default router;
+sessionsRouter.post("/", sessionsController.createSession);
+
+export default sessionsRouter;

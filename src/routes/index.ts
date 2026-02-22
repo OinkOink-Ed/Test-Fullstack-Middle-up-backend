@@ -1,10 +1,10 @@
 import { Router } from "express";
 import itemsRouter from "./items.routes";
-import sessionRoutes from "./sessions.routes";
+import sessionsRouter from "./sessions.routes";
 
-const router = Router();
+const apiRouter = Router();
 
-router.use("/items", itemsRouter);
-router.use("/sessions", sessionRoutes);
+apiRouter.use("/items", itemsRouter);
+apiRouter.use("/sessions", sessionsRouter);
 
-export default router;
+export default apiRouter;

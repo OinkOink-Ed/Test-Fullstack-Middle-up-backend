@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 
-export function validateStorage(
+export function RequireStorage(
   target: any,
   propertyName: string,
   descriptor: PropertyDescriptor,
@@ -8,11 +8,11 @@ export function validateStorage(
   const originalMethod = descriptor.value;
 
   descriptor.value = async function (...args: any[]) {
-    const req: Request = args[0];
-    const res: Response = args[1];
+    const request: Request = args[0];
+    const response: Response = args[1];
 
-    if (!req.storageService) {
-      res.status(500).json({ error: "Storage service недоступен" });
+    if (!request.documentStorage) {
+      response.status(503).json({ error: "Storage service unavailable" });
       return;
     }
 

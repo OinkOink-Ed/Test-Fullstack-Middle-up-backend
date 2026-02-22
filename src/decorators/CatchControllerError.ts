@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-export function handleError(
+export function CatchControllerError(
   target: any,
   propertyName: string,
   descriptor: PropertyDescriptor,
@@ -8,15 +8,15 @@ export function handleError(
   const originalMethod = descriptor.value;
 
   descriptor.value = async function (...args: any[]) {
-    const res: Response = args[1];
+    const response: Response = args[1];
     try {
       return await originalMethod.apply(this, args);
     } catch (error) {
       console.error(
-        `[${target.constructor.name}.${propertyName}] Ошибка:`,
+        `[${target.constructor.name}.${propertyName}] Failed:`,
         error,
       );
-      res.status(500).json({ error: "Внутренняя ошибка сервера" });
+      response.status(500).json({ error: "Internal server error" });
     }
   };
 }

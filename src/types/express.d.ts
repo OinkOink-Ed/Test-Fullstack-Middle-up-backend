@@ -1,8 +1,8 @@
-import type { StorageService } from "../services/storage.services";
+import type { StorageService } from "../services/DocumentStorage.services";
 declare global {
   namespace Express {
     interface Request {
-      storageService: StorageService;
+      documentStorage: StorageService;
     }
   }
 }

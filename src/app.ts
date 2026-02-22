@@ -1,12 +1,12 @@
 import express, { Application } from "express";
 import routes from "./routes";
 import { Request, Response } from "express";
-import { initializeStorage } from "./initializeStorage";
-import { StorageSingleton } from "./services/storage-singlton";
+import { ensureStorageInitialized } from "./ensureStorageInitialized";
+import { StorageSingleton } from "./services/StorageSingleton";
 import helmet from "helmet";
 
 const app: Application = express();
-const port: string | number = process.env.PORT || 3000;
+const port: number = Number(process.env.PORT || 3000);
 
 // Middleware для парсинга входящих запросов
 app.use(express.json());
@@ -17,8 +17,8 @@ app.use(helmet());
 
 app.use(async (req: Request, res: Response, next) => {
   try {
-    const storageService = StorageSingleton.getInstance();
-    req.storageService = storageService;
+    const documentStorage = StorageSingleton.getInstance();
+    req.documentStorage = documentStorage;
     next();
   } catch (error) {
     console.error("Failed to get storage service:", error);
@@ -30,7 +30,7 @@ app.use("/api", routes);
 
 async function startServer() {
   try {
-    await initializeStorage();
+    await ensureStorageInitialized();
 
     app.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);

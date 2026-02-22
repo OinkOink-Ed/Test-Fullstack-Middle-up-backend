@@ -1,22 +1,22 @@
-export async function processBatch<T, R>(
+export async function processInBatches<T, R>(
   items: T[],
-  processor: (item: T) => Promise<R> | R,
+  processItem: (item: T) => Promise<R> | R,
   batchSize: number = 10000,
-  onProgress?: (processed: number, total: number) => void,
+  onBatchComplete?: (processedCount: number, totalCount: number) => void,
 ): Promise<R[]> {
   const results: R[] = [];
 
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    const batchResults = await Promise.all(batch.map(processor));
+  for (let offset = 0; offset < items.length; offset += batchSize) {
+    const currentBatch = items.slice(offset, offset + batchSize);
+    const batchResults = await Promise.all(currentBatch.map(processItem));
     results.push(...batchResults);
 
-    if (onProgress) {
-      onProgress(Math.min(i + batchSize, items.length), items.length);
+    if (onBatchComplete) {
+      onBatchComplete(Math.min(offset + batchSize, items.length), items.length);
     }
 
-    // GC пауза
-    if (i > 0 && i % 500000 === 0) {
+    // GC pause to prevent memory pressure
+    if (offset > 0 && offset % 500000 === 0) {
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
   }

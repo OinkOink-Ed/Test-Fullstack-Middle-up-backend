@@ -1,4 +1,4 @@
-export async function generateTestData(
+export async function generateTestDocuments(
   count: number,
   startId: number,
 ): Promise<any[]> {

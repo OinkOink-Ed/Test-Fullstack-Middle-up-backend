@@ -1,4 +1,4 @@
-export interface IItem {
+export interface IDocument {
   id: string;
   name: string;
   description: string;
@@ -7,25 +7,25 @@ export interface IItem {
   category: string;
 }
 
-export interface IItemCollection {
-  getIds(): string[];
-  getMap(): Map<string, IItem>;
-  getItem(id: string): IItem | undefined;
-  getIndex(id: string): number | undefined;
-  add(Item: IItem): number;
-  remove(id: string): IItem | null;
+export interface IDocumentCollection {
+  getDocumentIds(): string[];
+  getDocumentsMap(): Map<string, IDocument>;
+  getDocument(id: string): IDocument | undefined;
+  getDocumentIndex(id: string): number | undefined;
+  add(document: IDocument): number;
+  remove(id: string): IDocument | null;
   size(): number;
 }
 
 export interface ISearchResult {
-  ids: string[];
+  documentIds: string[];
   totalCount: number;
 }
 
-export interface ISessionData {
-  searchKey: string;
-  resultIds: string[];
-  cursor: number;
+export interface ISession {
+  searchQuery: string;
+  resultDocumentIds: string[];
+  currentCursor: number;
   expiresAt: number;
   searchInSelected: boolean;
 }

@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { handleError } from "../decorators/hadleError";
-import { validateStorage } from "../decorators/validateStorage";
-import { validateQueryParams } from "../decorators/validateQueryParams";
+import { CatchControllerError } from "../decorators/CatchControllerError";
+import { RequireStorage } from "../decorators/RequireStorage";
+import { RequireQueryParams } from "../decorators/RequireQueryParams";
 
 export default class ItemsController {
-  @handleError
-  @validateStorage
-  @validateQueryParams(["sessionId"])
+  @CatchControllerError
+  @RequireStorage
+  @RequireQueryParams(["sessionId"])
   async getAllItems(req: Request, res: Response): Promise<void> {
     const {
       sessionId,
@@ -25,7 +25,7 @@ export default class ItemsController {
       safeLimit = Math.min(limitNum, 20);
     }
 
-    const results = await req.storageService.getAllItems(
+    const results = await req.documentStorage.getAllItems(
       sessionIdStr.trim(),
       cursor as string | null,
       search as string | undefined,
@@ -36,10 +36,10 @@ export default class ItemsController {
     res.json(results);
   }
 
-  @handleError
-  @validateStorage
+  @CatchControllerError
+  @RequireStorage
   async createSession(req: Request, res: Response): Promise<void> {
-    const sessionId = await req.storageService.createSession();
+    const sessionId = await req.documentStorage.createSession();
 
     res.status(201).json({
       sessionId,

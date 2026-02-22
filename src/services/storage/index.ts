@@ -1,2 +1,2 @@
-export { StorageService } from "./StorageService";
-export type { IItem } from "./interfaces";
+export { DocumentStorage } from "./DocumentStorage";
+export type { IDocument } from "./interfaces";

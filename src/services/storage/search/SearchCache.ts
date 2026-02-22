@@ -1,59 +1,61 @@
-interface CacheEntry {
-  ids: string[];
-  timestamp: number;
+interface CachedSearchResult {
+  documentIds: string[];
+  cachedAt: number;
 }
 
 export class SearchCache {
-  private cache: Map<string, CacheEntry> = new Map();
-  private accessOrder: string[] = [];
+  private cache: Map<string, CachedSearchResult> = new Map();
+  private accessHistory: string[] = [];
 
   constructor(
-    private maxSize: number = 1000,
-    private ttl: number = 10 * 60 * 1000,
+    private maxEntries: number = 1000,
+    private entryTTLMs: number = 10 * 60 * 1000,
   ) {}
 
-  get(key: string): string[] | null {
-    const entry = this.cache.get(key);
+  get(cacheKey: string): string[] | null {
+    const entry = this.cache.get(cacheKey);
     if (!entry) return null;
 
-    if (Date.now() - entry.timestamp > this.ttl) {
-      this.cache.delete(key);
-      this.accessOrder = this.accessOrder.filter((k) => k !== key);
+    if (Date.now() - entry.cachedAt > this.entryTTLMs) {
+      this.cache.delete(cacheKey);
+      this.accessHistory = this.accessHistory.filter((key) => key !== cacheKey);
       return null;
     }
 
     // Update LRU order
-    this.accessOrder = this.accessOrder.filter((k) => k !== key);
-    this.accessOrder.push(key);
+    this.accessHistory = this.accessHistory.filter((key) => key !== cacheKey);
+    this.accessHistory.push(cacheKey);
 
-    return entry.ids;
+    return entry.documentIds;
   }
 
-  set(key: string, ids: string[]): void {
-    // Evict if full
-    if (this.cache.size >= this.maxSize) {
-      const oldestKey = this.accessOrder.shift();
+  set(cacheKey: string, documentIds: string[]): void {
+    // Evict oldest entry if cache is full
+    if (this.cache.size >= this.maxEntries) {
+      const oldestKey = this.accessHistory.shift();
       if (oldestKey) this.cache.delete(oldestKey);
     }
 
-    this.cache.set(key, {
-      ids,
-      timestamp: Date.now(),
+    this.cache.set(cacheKey, {
+      documentIds,
+      cachedAt: Date.now(),
     });
-    this.accessOrder.push(key);
+    this.accessHistory.push(cacheKey);
   }
 
   invalidate(): void {
     this.cache.clear();
-    this.accessOrder = [];
+    this.accessHistory = [];
   }
 
-  cleanup(): void {
+  removeExpired(): void {
     const now = Date.now();
-    for (const [key, entry] of this.cache.entries()) {
-      if (now - entry.timestamp > this.ttl) {
-        this.cache.delete(key);
-        this.accessOrder = this.accessOrder.filter((k) => k !== key);
+    for (const [cacheKey, entry] of this.cache.entries()) {
+      if (now - entry.cachedAt > this.entryTTLMs) {
+        this.cache.delete(cacheKey);
+        this.accessHistory = this.accessHistory.filter(
+          (key) => key !== cacheKey,
+        );
       }
     }
   }
