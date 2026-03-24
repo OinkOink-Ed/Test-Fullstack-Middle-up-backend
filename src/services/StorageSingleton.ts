@@ -1,4 +1,4 @@
-import { DocumentStorage } from "./DocumentStorage.service";
+import { DocumentStorage } from "./storage/DocumentStorage";
 
 class StorageSingleton {
   static #instance: DocumentStorage | null = null;

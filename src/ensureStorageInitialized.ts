@@ -30,7 +30,7 @@ export async function ensureStorageInitialized(): Promise<void> {
       );
 
       console.log(
-        `  ↳ Generated ${currentBatchSize} documents (IDs ${offset + 1}-${offset + currentBatchSize})`,
+        `Generated ${currentBatchSize} documents (IDs ${offset + 1}-${offset + currentBatchSize})`,
       );
 
       for (const document of documents) {
